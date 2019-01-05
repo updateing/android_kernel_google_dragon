@@ -72,6 +72,9 @@ boot := arch/arm64/boot
 Image Image.gz: vmlinux
 	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
 
+Image.fit: Image dtbs
+	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
+
 zinstall install: vmlinux
 	$(Q)$(MAKE) $(build)=$(boot) $@
 
@@ -98,6 +101,7 @@ archclean:
 define archhelp
   echo  '* Image.gz      - Compressed kernel image (arch/$(ARCH)/boot/Image.gz)'
   echo  '  Image         - Uncompressed kernel image (arch/$(ARCH)/boot/Image)'
+  echo  '  Image.fit     - FIT (Flattened Image Tree) image (arch/$(ARCH)/boot/Image.fit)'
   echo  '* dtbs          - Build device tree blobs for enabled boards'
   echo  '  dtbs_install  - Install dtbs to $(INSTALL_DTBS_PATH)'
   echo  '  install       - Install uncompressed kernel'
