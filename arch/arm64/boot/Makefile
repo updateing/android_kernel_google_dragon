@@ -16,11 +16,20 @@
 
 targets := Image Image.gz
 
+fitimagescript := $(srctree)/chromeos/scripts/make-fit-image.sh
+quiet_cmd_fitimage = FITIMAGE    $@
+	cmd_fitimage = $(fitimagescript) $(O) $(srctree) \
+		$(ARCH) arch/$(ARCH)/boot/dts/tegra \
+		$(dir $(shell which lz4))
+
 $(obj)/Image: vmlinux FORCE
 	$(call if_changed,objcopy)
 
 $(obj)/Image.gz: $(obj)/Image FORCE
 	$(call if_changed,gzip)
+
+$(obj)/Image.fit: $(obj)/Image $(fitimagescript) FORCE
+	$(call if_changed,fitimage)
 
 install: $(obj)/Image
 	$(CONFIG_SHELL) $(srctree)/$(src)/install.sh $(KERNELRELEASE) \
