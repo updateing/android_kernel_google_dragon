@@ -838,7 +838,6 @@ exit:
 error:
 	DMERR("error occured starting bootcache, setting to by pass mode");
 	atomic_set(&cache->state, BC_BYPASS);
-	cache->is_valid = 0;
 	goto exit;
 }
 
