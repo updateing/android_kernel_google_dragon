@@ -46,7 +46,6 @@
 #define DEV_MODE		FMODE_READ
 #define SECTOR_SIZE		(1 << SECTOR_SHIFT)
 #define SECTORS_PER_PAGE	(PAGE_SIZE / SECTOR_SIZE)
-#define MAX_DEVICE_NAME		(1 << 8)
 
 
 enum bc_state {
@@ -64,10 +63,10 @@ struct bootcache_waiter {
 
 struct bootcache_args {
 	/* Device being cached. The boot cache also stores its cache here. */
-	char device[MAX_DEVICE_NAME];
+	const char *device;
 
 	/* Identifies the data on the device. eg root hex digest from verity */
-	char signature[MAX_SIGNATURE];
+	const char *signature;
 
 	/* Sector start of cache on device */
 	u64 cache_start;
@@ -1092,9 +1091,8 @@ static int bootcache_ctr(struct dm_target *ti, unsigned argc, char **argv)
 	init_completion(&cache->init_complete);
 	cache->ti = ti;
 
-	strlcpy(cache->args.device, device, sizeof(cache->args.device));
-	strlcpy(cache->args.signature, signature,
-		sizeof(cache->args.signature));
+	cache->args.device = device;
+	cache->args.signature = signature;
 	cache->args.cache_start = cache_start;
 	cache->args.max_pages = max_pages;
 	cache->args.size_limit = size_limit;
