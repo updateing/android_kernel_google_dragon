@@ -363,15 +363,15 @@ static int upgrade_mode(struct dm_dev_internal *dd, fmode_t new_mode,
 	return 0;
 }
 
-static int match_dev_by_uuid(struct device *dev, void *uuid_data)
+static int match_dev_by_uuid(struct device *dev, void *data)
 {
-	char *uuid = uuid_data;
+	u8 *uuid = data;
 	struct hd_struct *part = dev_to_part(dev);
 
 	if (!part->info)
 		goto no_match;
 
-	if (strncasecmp(uuid, part->info->uuid, strlen(uuid)))
+	if (memcmp(uuid, part->info->uuid, sizeof(part->info->uuid)))
 		goto no_match;
 
 	return 1;
@@ -386,25 +386,18 @@ static dev_t devt_from_partuuid(const char *uuid_str)
 	struct device *dev = NULL;
 	struct gendisk *disk;
 	struct hd_struct *part;
-	char *uuid;
+	u8 uuid[16];
 	int offset = 0;
 	char unreached;
 
 	if (strlen(uuid_str) < 36)
 		goto done;
-
+	part_pack_uuid(uuid_str, uuid);
 	if (uuid_str[36] && sscanf(uuid_str + 36, "/PARTNROFF=%d%c", &offset,
 	                           &unreached) != 1)
 		goto done;
 
-	/* strdup uuid_str for class_find_device() which wants something */
-	/* non-const */
-	uuid = kstrdup(uuid_str, GFP_KERNEL);
-	if (!uuid)
-		goto done;
-
 	dev = class_find_device(&block_class, NULL, uuid, &match_dev_by_uuid);
-	kfree(uuid);
 	if (!dev)
 		goto done;
 

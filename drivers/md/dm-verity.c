@@ -795,12 +795,13 @@ static void verity_dtr(struct dm_target *ti)
 static int match_dev_by_uuid(struct device *dev, void *data)
 {
 	char *uuid = data;
+	unsigned int len = strlen(uuid);
 	struct hd_struct *part = dev_to_part(dev);
 
 	if (!part->info)
 		goto no_match;
 
-	if (strncasecmp(uuid, part->info->uuid, strlen(uuid)))
+	if (strncmp(uuid, part->info->uuid, len))
 			goto no_match;
 
 	return 1;
@@ -827,17 +828,11 @@ static int dm_get_device_by_uuid(struct dm_target *ti, const char *uuid_str,
 	struct device *dev = NULL;
 	dev_t devt = 0;
 	char devt_buf[BDEVT_SIZE];
-	char *uuid;
+	char *uuid = kstrdup(uuid_str, GFP_KERNEL);
 	size_t uuid_length = strlen(uuid_str);
 
 	if (uuid_length < 36)
 		goto bad_uuid;
-
-	/* strdup it so that we can modify the contents and pass to */
-	/* class_find_device() which wants something non-const */
-	uuid = kstrdup(uuid_str, GFP_KERNEL);
-	if (!uuid)
-		goto nomem;
 
 	/* don't match anything after the UUID */
 	if (uuid_length > 36)
@@ -890,10 +885,6 @@ bad_uuid:
 found_nothing:
 	DMDEBUG("No matching partition for GUID: %s", uuid_str);
 	ti->error = "No matching GUID";
-	return -1;
-nomem:
-	DMDEBUG("Couldn't allocate memory for GUID: %s", uuid_str);
-	ti->error = "Couldn't allocate memory for GUID";
 	return -1;
 }
 
