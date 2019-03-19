@@ -148,6 +148,13 @@ static inline u64 pages_to_sectors(u64 pages)
 	return pages << (PAGE_SHIFT - SECTOR_SHIFT);
 }
 
+static void bootcache_bio_destructor(struct bio *bio)
+{
+	struct bootcache *cache = bio->bi_private;
+
+	bio_free(bio, cache->bio_set);
+}
+
 static inline struct bootcache_page **bootcache_hash(
 					struct bootcache_sector_map *map,
 					u64 sector)
@@ -576,6 +583,7 @@ static int bootcache_read_sectors(struct bootcache *cache)
 		return -ENOMEM;
 	}
 	bio->bi_private = &waiter;
+	bio->bi_destructor = bootcache_bio_destructor;
 	p = cache->sectors.pages;
 	for (i = 0; i < chunks_to_read; i++) {
 		bio->bi_idx = 0;
@@ -658,6 +666,7 @@ static int bootcache_dev_read(struct bootcache *cache, void *data,
 	for (i = 0; i < num_pages; i++, bvec++)
 		bvec->bv_page = alloc_page(GFP_KERNEL);
 	bio->bi_private = &waiter;
+	bio->bi_destructor = bootcache_bio_destructor;
 	pages_read = 0;
 	while (len) {
 		if (pages_to_read < max_io)
@@ -1154,7 +1163,7 @@ bad_cache:
 }
 
 static int bootcache_status(struct dm_target *ti, status_type_t type,
-			    unsigned status_flags, char *result, uint maxlen)
+				char *result, uint maxlen)
 {
 	struct bootcache *cache = (struct bootcache *) ti->private;
 	uint sz = 0;
@@ -1201,7 +1210,8 @@ static void bootcache_dtr(struct dm_target *ti)
 	kfree(cache);
 }
 
-static int bootcache_map(struct dm_target *ti, struct bio *bio)
+static int bootcache_map(struct dm_target *ti, struct bio *bio,
+			union map_info *map_context)
 {
 	bootcache_read(ti->private, bio);
 	return DM_MAPIO_SUBMITTED;
