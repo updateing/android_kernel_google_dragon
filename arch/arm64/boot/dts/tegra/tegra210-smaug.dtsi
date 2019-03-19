@@ -51,7 +51,7 @@
 					type = "ext4";
 					mnt_flags = "ro,barrier=1,discard";
 					fsmgr_flags = "wait";
-					status = "ok";
+					status = "disabled";
 				};
 			};
 		};
