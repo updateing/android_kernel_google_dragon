@@ -850,12 +850,11 @@ static void bootcache_init_hdr(struct bootcache_hdr *hdr, u64 cache_start,
 	hdr->sector = cache_start;
 	hdr->magic = BOOTCACHE_MAGIC;
 	hdr->version = BOOTCACHE_VERSION;
-	hdr->state = BC_INIT;
-	hdr->alignment = PAGE_SIZE;
-	hdr->max_hw_sectors = queue_max_hw_sectors(bdev_get_queue(bdev));
-	hdr->max_sectors = queue_max_sectors(bdev_get_queue(bdev));
 	strncpy(hdr->date, __DATE__, sizeof(hdr->date));
 	strncpy(hdr->time, __TIME__, sizeof(hdr->time));
+	hdr->state = BC_INIT;
+	hdr->max_hw_sectors = queue_max_hw_sectors(bdev_get_queue(bdev));
+	hdr->max_sectors = queue_max_sectors(bdev_get_queue(bdev));
 	strncpy(hdr->signature, signature, sizeof(hdr->signature));
 }
 
