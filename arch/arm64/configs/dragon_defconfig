@@ -231,6 +231,7 @@ CONFIG_CFG80211=y
 CONFIG_NL80211_TESTMODE=y
 CONFIG_CFG80211_DEBUGFS=y
 CONFIG_RFKILL=y
+CONFIG_EXTRA_FIRMWARE="nouveau/acr_ucode.bin nouveau/fecs.bin nouveau/fecs_sig.bin nouveau/gpmu_ucode_desc.bin nouveau/gpmu_ucode_image.bin nouveau/nv12b_bundle nouveau/nv12b_fuc409c nouveau/nv12b_fuc409d nouveau/nv12b_fuc41ac nouveau/nv12b_fuc41ad nouveau/nv12b_method nouveau/nv12b_sw_ctx nouveau/nv12b_sw_nonctx nouveau/pmu_bl.bin nouveau/pmu_sig.bin nvidia/tegra210/bpmp.bin nvidia/tegra210/xusb.bin"
 CONFIG_DEBUG_DEVRES=y
 CONFIG_CONNECTOR=y
 CONFIG_MTD=y
